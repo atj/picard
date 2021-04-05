@@ -286,6 +286,38 @@ def func_replace(parser, text, old, new):
     return text.replace(old, new)
 
 
+@script_function(eval_args=False, documentation=N_(
+    """`$replacemulti(name,search,replace,,separator="; ")`
+
+Replaces occurrences of `search` with `replace` in the multi-value tag `name`.
+
+Example:
+
+    $replacemulti(genre,Idm,IDM)
+"""
+))
+def func_replacemulti(parser, name, search, replace, separator=MULTI_VALUED_JOINER):
+    if not name or not separator:
+        return ""
+
+    name = normalize_tagname(name)
+    multi = parser.context.get(name)
+    if not multi:
+        return ""
+
+    multi = multi.split(separator)
+    changed = False
+    for n, value in enumerate(multi):
+        if value == search:
+            multi[n] = replace
+            changed = True
+
+    if changed:
+        parser.context[name] = separator.join(multi)
+
+    return ""
+
+
 @script_function(documentation=N_(
     """`$in(x,y)`
 

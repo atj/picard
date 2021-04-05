@@ -529,6 +529,23 @@ class ScriptParserTest(PicardTestCase):
     def test_cmd_replace(self):
         self.assertScriptResultEquals("$replace(abc ab abd a,ab,test)", "testc test testd a")
 
+    def test_cmd_replacemulti(self):
+        context = Metadata()
+        expected = ["Electronic", "IDM", "Techno"]
+        context["genre"] = ["Electronic", "Idm", "Techno"]
+        self.parser.eval("$replacemulti(genre,Idm,IDM)", context)
+        self.assertEqual(self.parser.context.getall("genre"), expected)
+
+        context["genre"] = ["Electronic", "Jungle", "Bardcore"]
+        expected = ["Electronic", "Jungle", "Hardcore"]
+        self.parser.eval("$replacemulti(genre,Bardcore,Hardcore)", context)
+        self.assertEqual(self.parser.context.getall("genre"), expected)
+
+        genres = ["One", "Two", "Three"]
+        context["genre"] = genres
+        self.parser.eval("$replacemulti(genre,Foo,Bar)", context)
+        self.assertEqual(self.parser.context.getall("genre"), genres)
+
     def test_cmd_strip(self):
         self.assertScriptResultEquals("$strip(  \t abc  de \n f  )", "abc de f")
 
